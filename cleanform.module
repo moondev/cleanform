@@ -1,0 +1,92 @@
+<?php
+
+
+function cleanform_admin() {
+
+$ops = array();
+
+  $result1 = pager_query(db_rewrite_sql("SELECT * FROM {node_type}"));
+  while ($ctype = db_fetch_object($result1)) {
+   $ops[$ctype->type] = $ctype->name;
+  }
+  
+
+$form['cleanform_ccktypes'] = array(
+'#type' => 'select',
+'#default_value' => variable_get('cleanform_ccktypes',''),
+'#title' => t('CleanForm Content Types'),
+'#description' => t('Select which content types will have a clean form.'),
+'#options' => $ops,
+'#multiple' => true
+);
+
+
+return system_settings_form($form);
+}
+
+function cleanform_menu() {
+
+  $items = array();
+
+  $items['admin/settings/cleanform'] = array(
+    'title' => 'CleanForm Settings',
+    'description' => 'Choose which content types cleanform uses',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cleanform_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+
+  return $items;
+}
+
+
+function cleanform_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+	
+//echo $node->type;
+ 
+//echo $node->type;
+ if($op == 'prepare'){
+
+ $types = variable_get('cleanform_ccktypes','');
+$clean = false;
+
+foreach($types as $type){
+	if($node->type == $type){
+		$clean = true;
+	}
+}
+ 
+	if($clean){
+
+	function cleanform_footer($main = 0) {
+ 
+  $out = '<script>$(document).ready(function(){';
+  $out .= '$("#edit-menu-link-title-wrapper").parent().parent().hide();';
+  $out .= '$("#edit-revision-wrapper").parent().parent().hide();';
+  $out .= '$("#edit-pathauto-perform-alias-wrapper").parent().parent().hide();';
+  $out .= '$("#edit-comment-0-wrapper").parent().parent().parent().hide();';
+  $out .= '$(".admin .authored").hide();';
+  $out .= '$(".admin .options").hide();';
+
+  global $user;
+  //section to hide the rest of garland theme
+  if (in_array("Content Editor", $user->roles)) {
+  $out .= '$("#sidebar-left").hide();';
+  $out .= '$("#edit-preview").hide();';
+  }
+  
+  
+  $out .= '});</script>';
+			
+		return $out;
+ 
+}
+
+	
+
+	
+	}
+ 
+}  
+}

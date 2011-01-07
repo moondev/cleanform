@@ -1,0 +1,5 @@
+;$Id$
+name = "Clean Form"
+description = "Removes Unnecessary Form Fields from cck content types"
+core = 6.x
+php = 5.1
